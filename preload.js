@@ -6,8 +6,8 @@ const storage = require('electron-json-storage');
 var fs = require('fs');
 const {ipcRenderer, shell, remote } = require('electron')
 const { loadProgressBar } = require('axios-progress-bar')
-const Endpoint = "https://103.142.139.104:5111/"
-// const Endpoint = "https://localhost:5001/"
+const Endpoint = "http://103.142.139.104:5111/"
+// const Endpoint = "http://localhost:5001/"
 window.addEventListener('DOMContentLoaded', () => {
   const replaceText = (selector, text) => {
     const element = document.getElementById(selector)
@@ -222,33 +222,40 @@ function RenderGameDetail(data){
     detailDescription.innerHTML = data.newVersion.descriptions;
 
     var pathGame = gamePathStorage + '\\'+ data.idGame;
-    if (fs.existsSync(pathGame)){
-        fs.readFile(pathGame+'\\'+data.idGame, function(err, d) {
-            if (err) {
-                btnPlayInstall.textContent = "INSTALL"
-                btnPlayInstall.disabled = false; 
-                btnUninstallContainer.style.display = "none";
-                throw err;
-            } else {
-                var info = JSON.parse(d);
-                if (data.lastestVersion === info.version) { 
-                    btnPlayInstall.textContent = "PLAY";
+    if (data.plaform === "android") {
+        btnPlayInstall.textContent = "PLAY ON ANDROID"
+        btnPlayInstall.disabled = true; 
+        btnUninstallContainer.style.display = "none";
+    } else {
+        if (fs.existsSync(pathGame)){
+            fs.readFile(pathGame+'\\'+data.idGame, function(err, d) {
+                if (err) {
+                    btnPlayInstall.textContent = "INSTALL"
                     btnPlayInstall.disabled = false; 
-                    btnUninstallContainer.style.display = "flex";
-                }
-                    else {
-                        btnPlayInstall.textContent = "UPDATE";
+                    btnUninstallContainer.style.display = "none";
+                    throw err;
+                } else {
+                    var info = JSON.parse(d);
+                    if (data.lastestVersion === info.version) { 
+                        btnPlayInstall.textContent = "PLAY";
                         btnPlayInstall.disabled = false; 
                         btnUninstallContainer.style.display = "flex";
                     }
-            }
-            
-        })
-    } else {
-        btnPlayInstall.textContent = "INSTALL"
-        btnPlayInstall.disabled = false; 
-        btnUninstallContainer.style.display = "none";
+                        else {
+                            btnPlayInstall.textContent = "UPDATE";
+                            btnPlayInstall.disabled = false; 
+                            btnUninstallContainer.style.display = "flex";
+                        }
+                }
+                
+            })
+        } else {
+            btnPlayInstall.textContent = "INSTALL"
+            btnPlayInstall.disabled = false; 
+            btnUninstallContainer.style.display = "none";
+        }
     }
+    
     btnUninstallContainer.onclick = function(){
         var pathGame = gamePathStorage + '\\'+ data.idGame;
         try {
@@ -269,6 +276,9 @@ function RenderGameDetail(data){
     btnPlayContainer.onclick = function(){
         
         var pathGame = gamePathStorage + '\\'+ data.idGame;
+        if (btnPlayInstall.textContent === 'PLAY ON ANDROID') {
+            alert("PLAY IT ON ANDROID APP")
+        } else
         if (btnPlayInstall.textContent === 'INSTALL'){
             ChangeBtnPlayStatus("DOWNLOADING...","wait",true);
             GetUrlDownload(pathGame,data)

@@ -16,7 +16,7 @@ const https = require("https");
 const storage = require("electron-json-storage");
 const ElectronGoogleOAuth2 = require('@getstation/electron-google-oauth2').default;
 
-const Endpoint = "https://103.142.139.104:5111/"
+const Endpoint = "http://103.142.139.104:5111/"
 // const Endpoint = "https://localhost:5001/"
 const agent = new https.Agent({
   rejectUnauthorized: false,
@@ -108,7 +108,7 @@ function createLoginScreen() {
   });
   loginScreen.removeMenu();
   loginScreen.loadFile("login.html");
-  // loginScreen.webContents.openDevTools();
+  loginScreen.webContents.openDevTools();
 }
 ipcMain.handle("login-sma",(event,obj)=>{
   CreateLoginGoogle(obj);
